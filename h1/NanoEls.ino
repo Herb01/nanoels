@@ -18,8 +18,9 @@
 #define ENC_B 2 // D2
 
 // Stepper pulse and acceleration constants.
-#define PULSE_MIN_US round(500 * (200.0 / MOTOR_STEPS)) // Microseconds to wait after high pulse, min.
-#define PULSE_MAX_US round(2000 * (200.0 / MOTOR_STEPS)) // Microseconds to wait after high pulse, max. Slow start.
+#define ON_PULSE_MIN_US round(500 * (200.0 / MOTOR_STEPS)) // Microseconds to wait after high pulse, min. Used when ELS is on.
+#define OFF_PULSE_MIN_US round(1000 * (200.0 / MOTOR_STEPS)) // Microseconds to wait after high pulse, min. Used when ELS is off and moves are manual.
+#define PULSE_MAX_US round(2000 * (200.0 / MOTOR_STEPS)) // Microseconds to wait after high pulse, max. Slow start. Used when ELS is on.
 #define PULSE_DELTA_US 7 // Microseconds remove from waiting time on every step. Acceleration.
 #define INVERT_STEPPER true // false for 1:1 geared connection, true for 1:1 belt connection
 
@@ -692,7 +693,7 @@ long step(bool dir, long steps) {
     if (tDiffMs < 0 || tDiffMs > PULSE_MAX_US) {
       stepDelayUs = PULSE_MAX_US;
     } else {
-      stepDelayUs = min(PULSE_MAX_US, max(PULSE_MIN_US, stepDelayUs - PULSE_DELTA_US + tDiffMs));
+      stepDelayUs = min(PULSE_MAX_US, max(isOn ? ON_PULSE_MIN_US : OFF_PULSE_MIN_US, stepDelayUs - PULSE_DELTA_US + tDiffMs));
     }
     stepStartMs = t;
 
